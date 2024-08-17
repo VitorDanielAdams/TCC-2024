@@ -1,18 +1,22 @@
-import numpy as np
-import pandas as pd
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import os
+from deepface import DeepFace
+from rmn import RMN
+import cv2
 
-test_data_dir = "./data/test"
+rmn = RMN()
+img_path = "../data/test/0/32298.png"  # Substitua pelo caminho da imagem
 
-# Gerador de dados para o conjunto de teste
-datagen = ImageDataGenerator(rescale=1./255)
-test_generator = datagen.flow_from_directory(
-    test_data_dir,
-    target_size=(48, 48),
-    color_mode="rgb",
-    batch_size=32,
-    class_mode="categorical",
-    shuffle=False
-)
+# Analisar a imagem e detectar emoções
+result = DeepFace.analyze(img_path=img_path, actions=['emotion'])
+
+# Exibir o resultado
+print("Emoções detectadas:")
+print(result[0]["emotion"])
+
+# Detectar emoções na imagem
+image = cv2.imread(img_path)
+predictions = rmn.detect_emotion_for_single_frame(image)
+
+# Exibir o resultado
+print("Emoções detectadas:")
+print(predictions)
