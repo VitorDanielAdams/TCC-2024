@@ -14,7 +14,8 @@ Rodar detro de um env (Windows):
     - pip install -r requirements.txt
 
     * Rodar o projeto: *
-    - python ./src/main.py
+    - cd /src
+    - python main.py
 
     * Desativar Ambiente Virtual: *
     - deactivate
