@@ -2,7 +2,7 @@ Dataset utilizado (adicionar pastas 'test','train' e 'val' no diretório ./data/
     
     https://www.kaggle.com/datasets/astraszab/facial-expression-dataset-image-folders-fer2013?resource=download
 
-- * Python version: * 3.10.10
+-  Python version: 3.10.10
 
 Rodar detro de um env (Windows):
 
