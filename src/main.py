@@ -37,13 +37,12 @@ def load_images_from_folder(folder):
 
     return np.array(images), np.array(labels), class_indices, image_ids
 
-def evaluate_deepface(images, labels, class_indices, image_ids):
-    y_true = []
+def evaluate_deepface(images, class_indices):
     y_pred = []
     confidences = []
     times = []
     
-    for img, true_label, img_id in zip(images, labels, image_ids):
+    for img in images:
         start_time = time.time()
         result = DeepFace.analyze(img, actions=['emotion'], enforce_detection=False)
         end_time = time.time()
@@ -51,22 +50,20 @@ def evaluate_deepface(images, labels, class_indices, image_ids):
         emotion_index = dic_emotion[dominant_emotion]
         confidence = result[0]['face_confidence']
         
-        y_true.append(true_label)
         y_pred.append(class_indices[emotion_index])
         confidences.append(confidence)
         times.append(end_time - start_time)
     
-    return y_true, y_pred, confidences, times
+    return y_pred, confidences, times
 
-def evaluate_rmn(images, labels, class_indices, image_ids):
+def evaluate_rmn(images, class_indices):
     rmn = RMN()
 
-    y_true = []
     y_pred = []
     confidences = []
     times = []
     
-    for img, true_label, img_id in zip(images, labels, image_ids):
+    for img in images:
         start_time = time.time()
         img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         detections = rmn.detect_emotion_for_single_frame(img_bgr)
@@ -76,31 +73,34 @@ def evaluate_rmn(images, labels, class_indices, image_ids):
             emotion_index = dic_emotion[emotion]
             confidence = detections[0]['emo_proba']
             
-            y_true.append(true_label)
             y_pred.append(class_indices[emotion_index])
             confidences.append(confidence)
             times.append(end_time - start_time)
-    
-    return y_true, y_pred, confidences, times
+        else:
+            y_pred.append(None)
+            confidences.append(None)
+            times.append(end_time - start_time)
+
+    return y_pred, confidences, times
 
 def main():
 
-    dataset_path = "../data/test"  
+    dataset_path = "../data/val"  
 
     val_images, val_labels, class_indices, image_ids = load_images_from_folder(dataset_path)
     
     print(len(val_images))    
     
     # Avaliação com DeepFace
-    y_true_deepface, y_pred_deepface, confidences_deepface, times_deepface = evaluate_deepface(val_images, val_labels, class_indices, image_ids)
+    y_pred_deepface, confidences_deepface, times_deepface = evaluate_deepface(val_images, class_indices)
     
     # Avaliação com RMN
-    y_true_rmn, y_pred_rmn, confidences_rmn, times_rmn = evaluate_rmn(val_images, val_labels, class_indices, image_ids)
+    y_pred_rmn, confidences_rmn, times_rmn = evaluate_rmn(val_images, class_indices)
 
     # Preparar dados para salvar no CSV
     data = {
         "ImageID": image_ids,
-        "TrueLabel": y_true_rmn,  # y_true_rmn e y_true_deepface são os mesmos
+        "TrueLabel": val_labels,
         "PredictedLabel_RMN": y_pred_rmn,
         "Confidence_RMN": confidences_rmn,
         "ProcessingTime_RMN": times_rmn,
@@ -110,7 +110,7 @@ def main():
     }
 
     df = pd.DataFrame(data)
-    df.to_csv('resultados_modelos.csv', index=False)
+    df.to_csv('resultados_modelos2.csv', index=False)
 
 if __name__ == "__main__":
     main()
