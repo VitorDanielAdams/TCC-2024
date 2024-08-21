@@ -12,7 +12,7 @@ Rodar detro de um env (Windows):
     * Ativar o Ambiente Virtual: *
     - .\env\Scripts\activate
 
-    * Instalar Dependências:: *
+    * Instalar Dependências: *
     - pip install -r requirements.txt
 
     * Rodar o projeto: *
